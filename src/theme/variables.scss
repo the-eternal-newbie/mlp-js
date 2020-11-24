@@ -1,0 +1,26 @@
+@font-face {
+    font-family: 'Basic';
+    src: url('./fonts/basic.otf');
+}
+
+@font-face {
+    font-family: 'Helvetica Bold';
+    src: url('./fonts/helvetica.ttf');
+}
+
+@font-face {
+    font-family: 'Tahoma';
+    src: url('./fonts/tahoma.ttf');
+}
+
+$yellow: #fcba04ff;
+$purple: #935fa7ff;
+$red: #ff6f5aff;
+$white: #ffffffff;
+$black: #090909ff;
+$basic_font: 'Basic',
+'sans-serif';
+$helvetica_font: 'Helvetica Bold',
+'Helvetica';
+$tahoma_font: 'Tahoma',
+'sans-serif';
