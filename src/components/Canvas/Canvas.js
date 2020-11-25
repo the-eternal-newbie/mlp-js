@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
     ScatterChart,
     Scatter,
@@ -10,7 +10,14 @@ import {
 import './Canvas.scss';
 
 const Canvas = (props) => {
-    const { encodedClass, currentClass, isNewClass, setIsNewClass } = {
+    const {
+        setTrainingData,
+        encodedClass,
+        currentClass,
+        isNewClass,
+        isTraining,
+        setIsNewClass,
+    } = {
         ...props,
     };
     const colors = { 1: '#fcba04ff', 2: '#935fa7ff', 3: '#ff6f5aff' };
@@ -25,6 +32,20 @@ const Canvas = (props) => {
 
     const drawCoordinates = (event) => {
         console.log(colors[currentClass]);
+        if (isNewClass && currentClass === 3) {
+            setData(
+                data.map((item) =>
+                    item.class === 1
+                        ? {
+                              ...item,
+                              encoded: '001',
+                          }
+                        : item.class === 2
+                        ? { ...item, encoded: '010' }
+                        : item
+                )
+            );
+        }
         isNewClass
             ? setData((prev) => [
                   ...prev,
@@ -49,6 +70,21 @@ const Canvas = (props) => {
                   )
               );
         isNewClass && setIsNewClass(false);
+        const x = [];
+        const y = [];
+        data.forEach((dataSet) => {
+            if (dataSet.lenght !== 0) {
+                dataSet['points'].forEach((coord) => {
+                    x.push([coord['x'], coord['y']]);
+                    y.push([
+                        dataSet['encoded']
+                            .split('')
+                            .map((char) => parseInt(char)),
+                    ]);
+                });
+            }
+        });
+        setTrainingData([x, y]);
     };
 
     return (
@@ -56,7 +92,7 @@ const Canvas = (props) => {
             <ScatterChart
                 width={800}
                 height={800}
-                onClick={(event) => drawCoordinates(event, '1')}
+                onClick={(event) => drawCoordinates(event)}
             >
                 <CartesianGrid />
                 <XAxis

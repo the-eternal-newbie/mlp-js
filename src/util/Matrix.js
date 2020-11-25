@@ -4,7 +4,7 @@ class Matrix {
         this.cols = cols || 0;
         if (values instanceof Array) {
             this.data = values.slice();
-        } else if (values == 'RANDOM') {
+        } else if (values === 'RANDOM') {
             this.data = Array(this.rows * this.cols)
                 .fill()
                 .map((_) => Math.random() * 2 - 1);
@@ -46,14 +46,14 @@ class Matrix {
     }
 
     add(a) {
-        if (this.rows != a.rows || this.cols != a.cols) return null;
+        if (this.rows !== a.rows || this.cols !== a.cols) return null;
         for (let i = 0; i < this.data.length; i++) {
             this.data[i] += a.data[i];
         }
     }
 
     subtract(a) {
-        if (this.rows != a.rows || this.cols != a.cols) return null;
+        if (this.rows !== a.rows || this.cols !== a.cols) return null;
         for (let i = 0; i < this.data.length; i++) {
             this.data[i] -= a.data[i];
         }
@@ -66,7 +66,7 @@ class Matrix {
     }
 
     hadamard(a) {
-        if (this.rows != a.rows || this.cols != a.cols) return null;
+        if (this.rows !== a.rows || this.cols !== a.cols) return null;
         for (let i = 0; i < this.data.length; i++) {
             this.data[i] *= a.data[i];
         }

@@ -29,6 +29,7 @@ class MLP {
             let s = 0;
             for (let i = 0; i < inputs.length; i++) {
                 const input = new Matrix(inputs[i].length, 1, inputs[i]);
+                console.log(input);
                 const hidden = this.inputsToHidden.multiply(input);
                 hidden.add(this.biasInputsToHidden);
                 hidden.foreach(this.activation);
@@ -67,6 +68,7 @@ class MLP {
                 this.hiddenToOutputs.transpose();
 
                 hidden.foreach(this.dActivation);
+                console.log(hiddenErrors);
                 hidden.hadamard(hiddenErrors);
                 hidden.scalar(this.lr);
 
