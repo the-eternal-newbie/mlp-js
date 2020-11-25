@@ -1,25 +1,42 @@
 @import '../../theme/variables.scss';
 
-.tweak {
+.tweakbar {
+    display: flex;
+    flex-wrap: wrap;
+    margin-left: 100px;
+    align-self: center;
+    align-items: center;
+    justify-content: space-between;
+    width: 500px;
+    height: 220px;
+}
+
+.inputContainer {
     display: flex;
     font-family: $basic_font;
     font-size: 1.3em;
+    margin-top: 35px;
     align-items: flex-start;
     flex-direction: column;
-    width: 640px;
-    position: absolute;
-    top: 40%;
-    left: 4%;
+    width: 200px;
     .container {
         display: flex;
-        width: 50%;
+        width: 300px;
         justify-content: space-between;
         margin-bottom: 10px;
         input {
-            width: 20%;
+            width: 50px;
         }
     }
-    button {
+}
+
+.buttonContainer {
+    display: flex;
+    flex-direction: column;
+    width: 150px;
+    height: 100%;
+    .train {
+        height: 50%;
         cursor: pointer;
         color: $red;
         font-family: $basic_font;
@@ -28,10 +45,29 @@
         border: 1px solid $red;
         border-radius: 5px;
         margin-top: 20px;
-        width: 50%;
+        width: 100%;
+
         &:hover {
             color: $white;
             background-color: $red;
+            border: none;
+        }
+    }
+    .newClass {
+        height: 50%;
+        cursor: pointer;
+        color: $yellow;
+        font-family: $basic_font;
+        font-size: 1em;
+        background-color: $white;
+        border: 1px solid $yellow;
+        border-radius: 5px;
+        margin-top: 20px;
+        width: 100%;
+
+        &:hover {
+            color: $white;
+            background-color: $yellow;
             border: none;
         }
     }

@@ -2,10 +2,10 @@ import React from 'react';
 
 import './TweakBar.scss';
 
-const TweakBar = () => {
+const TweakBar = (props) => {
     return (
-        <>
-            <form action="" className="tweak">
+        <section className="tweakbar">
+            <div className="inputContainer">
                 <div className="container">
                     <label htmlFor="">Learning Rate: </label>
                     <input type="number" step="0.01" className="eta" />
@@ -26,9 +26,16 @@ const TweakBar = () => {
                     <label htmlFor="">Neurons per Layer: </label>
                     <input type="number" step="1" className="neurons" />
                 </div>
-                <button type="submit">Train</button>
-            </form>
-        </>
+            </div>
+            <div className="buttonContainer">
+                <button className="train" onClick={() => props.startTraining()}>
+                    Train
+                </button>
+                <button className="newClass" onClick={() => props.addClass()}>
+                    Add class
+                </button>
+            </div>
+        </section>
     );
 };
 
