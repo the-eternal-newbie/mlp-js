@@ -10,10 +10,10 @@ class MLP {
         mde = 0.1,
         layers = 2
     ) {
-        this.inputsToHidden = new Matrix(neurons * layers, input, 'RANDOM');
-        this.biasInputsToHidden = new Matrix(neurons * layers, 1, 'RANDOM');
+        this.hiddenLayers = new Matrix(neurons * layers, input, 'RANDOM');
+        this.weights = new Matrix(neurons * layers, 1, 'RANDOM');
         this.hiddenToOutputs = new Matrix(output, neurons * layers, 'RANDOM');
-        this.biasHiddenToOutputs = new Matrix(output, 1, 'RANDOM');
+        this.weightsToOutputs = new Matrix(output, 1, 'RANDOM');
         this.lr = learningRate;
         this.maxEpoch = maxEpoch;
         this.mde = mde;
@@ -23,11 +23,11 @@ class MLP {
 
     predict(inputs) {
         let inputsMatrix = new Matrix(inputs.length, 1, inputs);
-        let hidden = this.inputsToHidden.multiply(inputsMatrix);
-        hidden.add(this.biasInputsToHidden);
+        let hidden = this.hiddenLayers.multiply(inputsMatrix);
+        hidden.add(this.weights);
         hidden.foreach(this.activation);
         let output = this.hiddenToOutputs.multiply(hidden);
-        output.add(this.biasHiddenToOutputs);
+        output.add(this.weightsToOutputs);
         output.foreach(this.activation);
         return output;
     }
@@ -40,12 +40,12 @@ class MLP {
             let s = 0;
             for (let i = 0; i < inputs.length; i++) {
                 const input = new Matrix(inputs[i].length, 1, inputs[i]);
-                const hidden = this.inputsToHidden.multiply(input);
-                hidden.add(this.biasInputsToHidden);
+                const hidden = this.hiddenLayers.multiply(input);
+                hidden.add(this.weights);
                 hidden.foreach(this.activation);
 
                 const outputs = this.hiddenToOutputs.multiply(hidden);
-                outputs.add(this.biasHiddenToOutputs);
+                outputs.add(this.weightsToOutputs);
                 outputs.foreach(this.activation);
 
                 const outputErrors = new Matrix(labels[i].length, 1, labels[i]);
@@ -66,7 +66,7 @@ class MLP {
                 hidden.transpose();
 
                 this.hiddenToOutputs.add(hiddenToOutputsDeltas);
-                this.biasHiddenToOutputs.add(outputs);
+                this.weightsToOutputs.add(outputs);
 
                 this.hiddenToOutputs.transpose();
 
@@ -82,10 +82,10 @@ class MLP {
 
                 input.transpose();
 
-                const inputsToHiddenDeltas = hidden.multiply(input);
+                const hiddenLayersDeltas = hidden.multiply(input);
 
-                this.inputsToHidden.add(inputsToHiddenDeltas);
-                this.biasInputsToHidden.add(hidden);
+                this.hiddenLayers.add(hiddenLayersDeltas);
+                this.weights.add(hidden);
             }
             maxEpoch++;
             dataError.push({ epoch: maxEpoch, error: Math.sqrt(s) });
