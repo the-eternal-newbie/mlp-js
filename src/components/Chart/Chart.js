@@ -22,12 +22,12 @@ const Chart = (props) => {
                 }}
             >
                 <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="x" />
+                <XAxis dataKey="epoch" />
                 <YAxis />
                 <Tooltip />
                 <Line
                     type="monotone"
-                    dataKey="uv"
+                    dataKey="error"
                     stroke="#ff2200"
                     fill="#ff2200"
                     dot={false}

@@ -6,16 +6,16 @@ class MLP {
         output,
         neurons,
         learningRate = 0.1,
-        iterations = 100,
+        maxEpoch = 100,
         mde = 0.1,
         layers = 2
     ) {
-        this.inputsToHidden = new Matrix(neurons, input, 'RANDOM');
-        this.biasInputsToHidden = new Matrix(neurons, 1, 'RANDOM');
-        this.hiddenToOutputs = new Matrix(output, neurons, 'RANDOM');
+        this.inputsToHidden = new Matrix(neurons * layers, input, 'RANDOM');
+        this.biasInputsToHidden = new Matrix(neurons * layers, 1, 'RANDOM');
+        this.hiddenToOutputs = new Matrix(output, neurons * layers, 'RANDOM');
         this.biasHiddenToOutputs = new Matrix(output, 1, 'RANDOM');
         this.lr = learningRate;
-        this.it = iterations;
+        this.maxEpoch = maxEpoch;
         this.mde = mde;
         this.activation = this.sigmoid;
         this.dActivation = this.dSigmoid;
@@ -34,9 +34,10 @@ class MLP {
 
     train(inputs, labels) {
         this.shuffle(inputs, labels);
-        let it = 0;
-        let s = 0;
-        while (it < this.it) {
+        let maxEpoch = 0;
+        const dataError = [];
+        while (maxEpoch < this.maxEpoch) {
+            let s = 0;
             for (let i = 0; i < inputs.length; i++) {
                 const input = new Matrix(inputs[i].length, 1, inputs[i]);
                 const hidden = this.inputsToHidden.multiply(input);
@@ -72,7 +73,6 @@ class MLP {
                 const hiddenErrors = this.hiddenToOutputs.multiply(
                     outputErrors
                 );
-                console.log(outputErrors);
 
                 this.hiddenToOutputs.transpose();
 
@@ -87,9 +87,13 @@ class MLP {
                 this.inputsToHidden.add(inputsToHiddenDeltas);
                 this.biasInputsToHidden.add(hidden);
             }
-            it++;
-            if (it % 100 === 0) console.log(Math.sqrt(s));
+            maxEpoch++;
+            dataError.push({ epoch: maxEpoch, error: Math.sqrt(s) });
+            if (Math.sqrt(s) < this.mde) {
+                break;
+            }
         }
+        return dataError;
     }
 
     shuffle(x, y) {

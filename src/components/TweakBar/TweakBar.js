@@ -97,6 +97,12 @@ const TweakBar = (props) => {
                 <button className="newClass" onClick={() => props.addClass()}>
                     Add class
                 </button>
+                <button
+                    className="clear"
+                    onClick={() => window.location.reload()}
+                >
+                    Clear
+                </button>
             </div>
         </section>
     );

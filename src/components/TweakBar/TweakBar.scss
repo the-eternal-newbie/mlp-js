@@ -77,4 +77,29 @@
             border: none;
         }
     }
+    .clear {
+        height: 50%;
+        cursor: pointer;
+        color: $purple;
+        font-family: $basic_font;
+        font-size: 1em;
+        background-color: $white;
+        border: 1px solid $purple;
+        border-radius: 5px;
+        margin-top: 20px;
+        width: 100%;
+
+        &:hover {
+            color: $white;
+            background-color: $purple;
+            border: none;
+        }
+
+        &:disabled {
+            color: gray;
+            background-color: $white;
+            border: 1px solid gray;
+            cursor: not-allowed;
+        }
+    }
 }

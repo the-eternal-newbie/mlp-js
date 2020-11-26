@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Canvas from '../../components/Canvas/Canvas';
 import TweakBar from '../../components/TweakBar/TweakBar';
 import ErrorChart from '../../components/Chart/Chart';
@@ -45,7 +45,8 @@ const BackPropLayout = () => {
             mde,
             layers
         );
-        net.train(trainingData[0], trainingData[1]);
+        const errors = net.train(trainingData[0], trainingData[1]);
+        setErrorData(errors);
         const data = {};
         layout === 'big'
             ? bigLayout.forEach((points) => {
