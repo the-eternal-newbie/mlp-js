@@ -3,11 +3,11 @@ import React, { useState } from 'react';
 import './TweakBar.scss';
 
 const TweakBar = (props) => {
-    const [eta, setEta] = useState(0.2);
-    const [mde, setMde] = useState(0.5);
-    const [maxEpoch, setMaxEpoch] = useState(100);
-    const [layers, setLayers] = useState(2);
-    const [neurons, setNeurons] = useState(2);
+    const [eta, setEta] = useState(undefined);
+    const [mde, setMde] = useState(undefined);
+    const [maxEpoch, setMaxEpoch] = useState(undefined);
+    const [layers, setLayers] = useState(undefined);
+    const [neurons, setNeurons] = useState(undefined);
 
     const handleEtaChange = (e) => {
         setEta(e.target.value);
@@ -25,6 +25,10 @@ const TweakBar = (props) => {
         setNeurons(e.target.value);
     };
 
+    const isFilled = () => {
+        return eta && mde && maxEpoch && layers && neurons;
+    };
+
     return (
         <section className="tweakbar">
             <div className="inputContainer">
@@ -33,6 +37,7 @@ const TweakBar = (props) => {
                     <input
                         type="number"
                         step="0.01"
+                        min="0.01"
                         className="eta"
                         onChange={handleEtaChange}
                     />
@@ -42,6 +47,7 @@ const TweakBar = (props) => {
                     <input
                         type="number"
                         step="0.01"
+                        min="0.01"
                         className="mde"
                         onChange={handleMdeChange}
                     />
@@ -51,6 +57,7 @@ const TweakBar = (props) => {
                     <input
                         type="number"
                         step="50"
+                        min={50}
                         className="epoch_limit"
                         onChange={handleEpochChange}
                     />
@@ -61,6 +68,8 @@ const TweakBar = (props) => {
                         type="number"
                         step="1"
                         className="layers"
+                        max={2}
+                        min={1}
                         onChange={handleLayersChange}
                     />
                 </div>
@@ -69,6 +78,7 @@ const TweakBar = (props) => {
                     <input
                         type="number"
                         step="1"
+                        min={1}
                         className="neurons"
                         onChange={handleNeuronsChange}
                     />
@@ -80,6 +90,7 @@ const TweakBar = (props) => {
                     onClick={() =>
                         props.startTraining(eta, mde, maxEpoch, layers, neurons)
                     }
+                    disabled={!props.isEnoughData || !isFilled()}
                 >
                     Train
                 </button>

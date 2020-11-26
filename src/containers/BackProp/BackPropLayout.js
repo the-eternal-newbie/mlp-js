@@ -1,33 +1,79 @@
 import React, { useState } from 'react';
 import Canvas from '../../components/Canvas/Canvas';
 import TweakBar from '../../components/TweakBar/TweakBar';
+import ErrorChart from '../../components/Chart/Chart';
 import MLP from '../../util/MLP';
+import { smallLayout, mediumLayout, bigLayout } from '../../util/Data';
 
 import './Layout.scss';
 
 const BackPropLayout = () => {
     const [isNewClass, setIsNewClass] = useState(false);
-    const [isTraining, setIsTraining] = useState(false);
+    const [isEnoughData, setIsEnoughData] = useState(false);
     const [currentClass, setCurrentClass] = useState(1);
-    const [encodedClass, setEncodedClass] = useState('01');
+    const [encodedClass, setEncodedClass] = useState('1');
     const [trainingData, setTrainingData] = useState([]);
+    const [errorData, setErrorData] = useState(null);
+    const [areaData, setAreaData] = useState(null);
 
     const addClass = () => {
         setCurrentClass((prev) => prev + 1);
         setIsNewClass(true);
-        currentClass + 1 === 2
-            ? setEncodedClass('10')
-            : currentClass + 1 === 3
-            ? setEncodedClass('100')
-            : setEncodedClass(null);
+        setEncodedClass('1' + '0'.repeat(currentClass));
     };
 
-    const startTraining = (eta, mde, maxEpoch, layers, neurons) => {
-        setIsTraining(true);
-        console.log('Training!');
-        console.log(trainingData);
-        const net = new MLP(2, neurons, currentClass, eta, maxEpoch);
-        net.fit(trainingData[0], trainingData[1]);
+    const determineClass = (matrix) => {
+        const encodedArray = matrix['data'];
+        const decodedValue = encodedArray.indexOf(Math.max(...encodedArray));
+        return '' + (encodedArray.length - decodedValue);
+    };
+
+    const startTraining = (
+        eta,
+        mde,
+        maxEpoch,
+        layers,
+        neurons,
+        layout = 'big'
+    ) => {
+        const net = new MLP(
+            2,
+            currentClass,
+            neurons,
+            eta,
+            maxEpoch,
+            mde,
+            layers
+        );
+        net.train(trainingData[0], trainingData[1]);
+        const data = {};
+        layout === 'big'
+            ? bigLayout.forEach((points) => {
+                  const encodedClass = determineClass(
+                      net.predict([points['x'], points['y']])
+                  );
+                  data[encodedClass]
+                      ? data[encodedClass].push(points)
+                      : (data[encodedClass] = [points]);
+              })
+            : layout === 'medium'
+            ? mediumLayout.forEach((points) => {
+                  const encodedClass = determineClass(
+                      net.predict([points['x'], points['y']])
+                  );
+                  data[encodedClass]
+                      ? data[encodedClass].push(points)
+                      : (data[encodedClass] = [points]);
+              })
+            : smallLayout.forEach((points) => {
+                  const encodedClass = determineClass(
+                      net.predict([points['x'], points['y']])
+                  );
+                  data[encodedClass]
+                      ? data[encodedClass].push(points)
+                      : (data[encodedClass] = [points]);
+              });
+        setAreaData(data);
     };
 
     return (
@@ -40,11 +86,19 @@ const BackPropLayout = () => {
                     currentClass={currentClass}
                     encodedClass={encodedClass}
                     isNewClass={isNewClass}
-                    isTraining={isTraining}
+                    areaData={areaData}
                     setIsNewClass={setIsNewClass}
                     setTrainingData={setTrainingData}
+                    setIsEnoughData={setIsEnoughData}
                 />
-                <TweakBar addClass={addClass} startTraining={startTraining} />
+                <section className="rightBar">
+                    <TweakBar
+                        addClass={addClass}
+                        isEnoughData={isEnoughData}
+                        startTraining={startTraining}
+                    />
+                    {errorData && <ErrorChart errorData={errorData} />}
+                </section>
             </section>
             <section className="errorLayout"></section>
         </section>

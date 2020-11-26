@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import {
     ScatterChart,
     Scatter,
@@ -7,6 +7,7 @@ import {
     CartesianGrid,
     Tooltip,
 } from 'recharts';
+import { colors } from '../../util/Data';
 import './Canvas.scss';
 
 const Canvas = (props) => {
@@ -15,43 +16,45 @@ const Canvas = (props) => {
         encodedClass,
         currentClass,
         isNewClass,
-        isTraining,
         setIsNewClass,
+        setIsEnoughData,
+        areaData,
     } = {
         ...props,
     };
-    const colors = { 1: '#fcba04ff', 2: '#935fa7ff', 3: '#ff6f5aff' };
+
     const [data, setData] = useState([
         {
             points: [],
-            color: colors[currentClass],
+            color: colors['points'][currentClass],
             class: currentClass,
             encoded: encodedClass,
         },
     ]);
+    const [amountData, setAmountData] = useState(0);
 
+    const refactorClasses = () => {
+        setData(
+            data.map((item) =>
+                item.class === currentClass
+                    ? item
+                    : {
+                          ...item,
+                          encoded: '0' + item.encoded,
+                      }
+            )
+        );
+    };
     const drawCoordinates = (event) => {
-        console.log(colors[currentClass]);
-        if (isNewClass && currentClass === 3) {
-            setData(
-                data.map((item) =>
-                    item.class === 1
-                        ? {
-                              ...item,
-                              encoded: '001',
-                          }
-                        : item.class === 2
-                        ? { ...item, encoded: '010' }
-                        : item
-                )
-            );
-        }
+        setAmountData((prev) => prev + 1);
+        currentClass > 1 && amountData > 10 && setIsEnoughData(true);
+        isNewClass && refactorClasses();
         isNewClass
             ? setData((prev) => [
                   ...prev,
                   {
                       points: [{ x: event.xValue, y: event.yValue }],
-                      color: colors[currentClass],
+                      color: colors['points'][currentClass],
                       encoded: encodedClass,
                       class: currentClass,
                   },
@@ -75,12 +78,14 @@ const Canvas = (props) => {
         data.forEach((dataSet) => {
             if (dataSet.lenght !== 0) {
                 dataSet['points'].forEach((coord) => {
-                    x.push([coord['x'], coord['y']]);
-                    y.push([
+                    const xValue = coord['x'].toFixed(2);
+                    const yValue = coord['y'].toFixed(2);
+                    x.push([parseFloat(xValue), parseFloat(yValue)]);
+                    y.push(
                         dataSet['encoded']
                             .split('')
-                            .map((char) => parseInt(char)),
-                    ]);
+                            .map((char) => parseInt(char))
+                    );
                 });
             }
         });
@@ -88,33 +93,47 @@ const Canvas = (props) => {
     };
 
     return (
-        <section className="cartesian">
-            <ScatterChart
-                width={800}
-                height={800}
-                onClick={(event) => drawCoordinates(event)}
-            >
-                <CartesianGrid />
-                <XAxis
-                    type="number"
-                    dataKey="x"
-                    domain={[-5, 5]}
-                    allowDataOverflow={true}
-                    tickCount={11}
-                />
-                <YAxis
-                    type="number"
-                    dataKey="y"
-                    domain={[-5, 5]}
-                    allowDataOverflow={true}
-                    tickCount={11}
-                />
-                <Tooltip cursor={{ strokeDasharray: '3 3' }} />
-                {data.map((dataSet) => (
-                    <Scatter data={dataSet['points']} fill={dataSet['color']} />
-                ))}
-            </ScatterChart>
-        </section>
+        <>
+            <section className="cartesian">
+                <ScatterChart
+                    width={800}
+                    height={800}
+                    onClick={(event) => drawCoordinates(event)}
+                >
+                    <CartesianGrid />
+                    <XAxis
+                        type="number"
+                        dataKey="x"
+                        domain={[-5, 5]}
+                        allowDataOverflow={true}
+                        tickCount={11}
+                    />
+                    <YAxis
+                        type="number"
+                        dataKey="y"
+                        domain={[-5, 5]}
+                        allowDataOverflow={true}
+                        tickCount={11}
+                    />
+                    <Tooltip cursor={{ strokeDasharray: '3 3' }} />
+                    {data.map((dataSet) => (
+                        <Scatter
+                            data={dataSet['points']}
+                            fill={dataSet['color']}
+                        />
+                    ))}
+                    {areaData &&
+                        Object.keys(areaData).map((key) => (
+                            <Scatter
+                                data={areaData[key]}
+                                shape="cross"
+                                fill={colors['layout'][key]}
+                                isAnimationActive={false}
+                            />
+                        ))}
+                </ScatterChart>
+            </section>
+        </>
     );
 };
 

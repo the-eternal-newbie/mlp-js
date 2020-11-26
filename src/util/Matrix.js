@@ -65,7 +65,7 @@ class Matrix {
         }
     }
 
-    hadamard(a) {
+    elemWise(a) {
         if (this.rows !== a.rows || this.cols !== a.cols) return null;
         for (let i = 0; i < this.data.length; i++) {
             this.data[i] *= a.data[i];

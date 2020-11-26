@@ -3,7 +3,6 @@
 .tweakbar {
     display: flex;
     flex-wrap: wrap;
-    margin-left: 100px;
     align-self: center;
     align-items: center;
     justify-content: space-between;
@@ -51,6 +50,13 @@
             color: $white;
             background-color: $red;
             border: none;
+        }
+
+        &:disabled {
+            color: gray;
+            background-color: $white;
+            border: 1px solid gray;
+            cursor: not-allowed;
         }
     }
     .newClass {

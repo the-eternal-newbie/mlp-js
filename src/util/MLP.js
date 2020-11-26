@@ -1,13 +1,22 @@
 import Matrix from './Matrix';
 
 class MLP {
-    constructor(input, hidden, output, learningRate = 0.1, iterations = 100) {
-        this.inputsToHidden = new Matrix(hidden, input, 'RANDOM');
-        this.biasInputsToHidden = new Matrix(hidden, 1, 'RANDOM');
-        this.hiddenToOutputs = new Matrix(output, hidden, 'RANDOM');
+    constructor(
+        input,
+        output,
+        neurons,
+        learningRate = 0.1,
+        iterations = 100,
+        mde = 0.1,
+        layers = 2
+    ) {
+        this.inputsToHidden = new Matrix(neurons, input, 'RANDOM');
+        this.biasInputsToHidden = new Matrix(neurons, 1, 'RANDOM');
+        this.hiddenToOutputs = new Matrix(output, neurons, 'RANDOM');
         this.biasHiddenToOutputs = new Matrix(output, 1, 'RANDOM');
         this.lr = learningRate;
         this.it = iterations;
+        this.mde = mde;
         this.activation = this.sigmoid;
         this.dActivation = this.dSigmoid;
     }
@@ -23,13 +32,13 @@ class MLP {
         return output;
     }
 
-    fit(inputs, labels) {
+    train(inputs, labels) {
+        this.shuffle(inputs, labels);
         let it = 0;
+        let s = 0;
         while (it < this.it) {
-            let s = 0;
             for (let i = 0; i < inputs.length; i++) {
                 const input = new Matrix(inputs[i].length, 1, inputs[i]);
-                console.log(input);
                 const hidden = this.inputsToHidden.multiply(input);
                 hidden.add(this.biasInputsToHidden);
                 hidden.foreach(this.activation);
@@ -39,7 +48,6 @@ class MLP {
                 outputs.foreach(this.activation);
 
                 const outputErrors = new Matrix(labels[i].length, 1, labels[i]);
-
                 outputErrors.subtract(outputs);
 
                 for (let i = 0; i < outputErrors.data.length; i++) {
@@ -47,7 +55,7 @@ class MLP {
                 }
 
                 outputs.foreach(this.dActivation);
-                outputs.hadamard(outputErrors);
+                outputs.elemWise(outputErrors);
                 outputs.scalar(this.lr);
 
                 hidden.transpose();
@@ -64,12 +72,12 @@ class MLP {
                 const hiddenErrors = this.hiddenToOutputs.multiply(
                     outputErrors
                 );
+                console.log(outputErrors);
 
                 this.hiddenToOutputs.transpose();
 
                 hidden.foreach(this.dActivation);
-                console.log(hiddenErrors);
-                hidden.hadamard(hiddenErrors);
+                hidden.elemWise(hiddenErrors);
                 hidden.scalar(this.lr);
 
                 input.transpose();
@@ -96,125 +104,12 @@ class MLP {
         }
     }
 
-    save() {
-        let nn = {
-            inputsToHidden: {
-                rows: this.inputsToHidden.rows,
-                cols: this.inputsToHidden.cols,
-                data: this.inputsToHidden.data,
-            },
-
-            biasInputsToHidden: {
-                rows: this.biasInputsToHidden.rows,
-                cols: this.biasInputsToHidden.cols,
-                data: this.biasInputsToHidden.data,
-            },
-
-            hiddenToOutputs: {
-                rows: this.hiddenToOutputs.rows,
-                cols: this.hiddenToOutputs.cols,
-                data: this.hiddenToOutputs.data,
-            },
-
-            biasHiddenToOutputs: {
-                rows: this.biasHiddenToOutputs.rows,
-                cols: this.biasHiddenToOutputs.cols,
-                data: this.biasHiddenToOutputs.data,
-            },
-
-            lr: this.lr,
-
-            it: this.it,
-
-            activation: 'sigmoid',
-
-            dActivation: 'dSigmoid',
-        };
-        let blob = new Blob([JSON.stringify(nn)], { type: 'text/json' });
-        let link = document.createElement('a');
-        link.href = window.URL.createObjectURL(blob);
-        link.download = 'nn.json';
-        link.click();
-    }
-
-    load(nn) {
-        this.inputsToHidden = new Matrix(
-            nn.inputsToHidden.rows,
-            nn.inputsToHidden.cols,
-            nn.inputsToHidden.data
-        );
-
-        this.biasInputsToHidden = new Matrix(
-            nn.biasInputsToHidden.rows,
-            nn.biasInputsToHidden.cols,
-            nn.biasInputsToHidden.data
-        );
-
-        this.hiddenToOutputs = new Matrix(
-            nn.hiddenToOutputs.rows,
-            nn.hiddenToOutputs.cols,
-            nn.hiddenToOutputs.data
-        );
-
-        this.biasHiddenToOutputs = new Matrix(
-            nn.biasHiddenToOutputs.rows,
-            nn.biasHiddenToOutputs.cols,
-            nn.biasHiddenToOutputs.data
-        );
-
-        this.lr = nn.lr;
-
-        this.it = nn.it;
-
-        console.log('loaded');
-    }
-
-    softmax(x) {
-        /* expect a vector instead of single input */
-        if (!(x instanceof Array)) return null;
-
-        let sum = 0;
-        for (let i = 0; i < x; i++) {
-            sum += Math.exp(x[i]);
-        }
-        for (let i = 0; i < x; i++) {
-            x[i] = Math.exp(x) / sum;
-        }
-        return x;
-    }
-
-    dSoftmax(labels, x) {
-        /* expect a vectors instead of single inputs */
-        if (!(x instanceof Array)) return null;
-
-        for (let i = 0; i < x.length; i++) {
-            x[i] = labels[i] - x;
-        }
-        return x;
-    }
-
     sigmoid(x) {
         return 1 / (1 + Math.exp(-x));
     }
 
     dSigmoid(x) {
         return x * (1 - x);
-    }
-
-    tanh(x) {
-        return Math.tanh(x);
-    }
-
-    dTanh(x) {
-        return 1 - x * x;
-    }
-
-    relu(x) {
-        return Math.max(0, x);
-    }
-
-    dRelu(x) {
-        return x > 0 ? 1 : 0;
     }
 }
 
